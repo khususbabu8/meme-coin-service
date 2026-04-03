@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOIN — Meme Coin as a Service</title>
+    <meta name="description" content="Launch your own meme coin on Solana. Full service — deploy, LP, website, marketing. No coding needed.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #00ff88;
+            --secondary: #ff6b35;
+            --accent: #a855f7;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111;
+            --bg-card2: #181818;
+            --text: #ffffff;
+            --text-dim: #999;
+            --border: rgba(255,255,255,0.08);
+        }
+        body { background: var(--bg-dark); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(0,255,136,0.04) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.04) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        /* Navbar */
+        .navbar { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(10,10,10,0.95); backdrop-filter: blur(12px); z-index: 100; border-bottom: 1px solid var(--border); }
+        .navbar .logo { font-family: 'Press Start 2P', cursive; font-size: 1rem; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .navbar .logo span { font-size: 1.3rem; }
+        .navbar .links { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar .links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .navbar .links a:hover { color: var(--primary); }
+
+        .btn { padding: 0.75rem 1.8rem; border-radius: 50px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s; cursor: pointer; border: none; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,255,136,0.25); }
+        .btn-secondary { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-secondary:hover { background: var(--primary); color: #000; }
+        .btn-accent { background: var(--accent); color: #fff; }
+        .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(168,85,247,0.25); }
+        .btn-dark { background: var(--bg-card2); color: var(--text); border: 1px solid var(--border); }
+        .btn-dark:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* Hero */
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 8rem 2rem 4rem; }
+        .hero-content { max-width: 800px; }
+        .hero .badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); border-radius: 50px; font-size: 0.8rem; color: var(--primary); margin-bottom: 1.5rem; }
+        .hero h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
+        .hero h1 .gradient { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: var(--text-dim); max-width: 600px; margin: 0 auto 2rem; line-height: 1.6; }
+        .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        .hero-stats { display: flex; gap: 3rem; justify-content: center; margin-top: 3rem; }
+        .hero-stats .stat { text-align: center; }
+        .hero-stats .stat .num { font-size: 2rem; font-weight: 900; color: var(--primary); }
+        .hero-stats .stat .lbl { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+        /* Sections */
+        .section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+        .section-label { text-align: center; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); margin-bottom: 0.5rem; }
+        .section h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; text-align: center; margin-bottom: 1rem; }
+        .section h2 .gradient { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .section .subtitle { text-align: center; color: var(--text-dim); font-size: 1.1rem; max-width: 600px; margin: 0 auto 3rem; }
+
+        /* How it Works */
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+        .step-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; position: relative; }
+        .step-card .num { width: 40px; height: 40px; background: var(--primary); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; margin: 0 auto 1rem; }
+        .step-card h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .step-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+
+        /* Pricing */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; align-items: start; }
+        .price-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; position: relative; overflow: hidden; }
+        .price-card.popular { border-color: var(--primary); }
+        .price-card.popular::before { content: 'MOST POPULAR'; position: absolute; top: 0; right: 0; background: var(--primary); color: #000; padding: 0.3rem 1rem; font-size: 0.7rem; font-weight: 700; border-radius: 0 0 0 12px; }
+        .price-card .tier { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 0.5rem; }
+        .price-card .price { font-size: 3rem; font-weight: 900; }
+        .price-card .price small { font-size: 1rem; font-weight: 400; color: var(--text-dim); }
+        .price-card .desc { font-size: 0.9rem; color: var(--text-dim); margin: 0.5rem 0 1.5rem; }
+        .price-card ul { list-style: none; margin-bottom: 2rem; }
+        .price-card ul li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; gap: 0.5rem; align-items: flex-start; }
+        .price-card ul li .check { color: var(--primary); flex-shrink: 0; }
+        .price-card ul li .cross { color: #555; flex-shrink: 0; }
+
+        /* Features */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+        .feature-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .feature-card h3 { margin-bottom: 0.5rem; color: var(--primary); }
+        .feature-card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
+
+        /* FAQ */
+        .faq-list { max-width: 700px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-q { padding: 1.2rem 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; }
+        .faq-q:hover { color: var(--primary); }
+        .faq-a { padding: 0 0 1.2rem; color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; display: none; }
+        .faq-item.open .faq-a { display: block; }
+        .faq-item.open .faq-q::after { content: '−'; }
+        .faq-q::after { content: '+'; font-size: 1.2rem; color: var(--text-dim); }
+
+        /* CTA */
+        .cta { text-align: center; padding: 5rem 2rem; background: linear-gradient(135deg, rgba(0,255,136,0.05), rgba(168,85,247,0.05)); border-radius: 24px; margin: 3rem auto; max-width: 1100px; }
+        .cta h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .cta p { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 2rem; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.8rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar .links a:not(.btn) { display: none; }
+            .hero-stats { flex-direction: column; gap: 1rem; }
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#" class="logo"><span>🪙</span> KOIN</a>
+        <div class="links">
+            <a href="#how">How It Works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#features">Features</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://t.me/" target="_blank" class="btn btn-primary">💬 Order Now</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">🪙 #1 Solana Meme Coin Service</div>
+            <h1>Launch Your Own<br><span class="gradient">Meme Coin</span> in 24 Hours</h1>
+            <p>Full service — token deploy, liquidity pool, website, marketing. You bring the idea, we build everything. No coding needed.</p>
+            <div class="hero-buttons">
+                <a href="https://t.me/" target="_blank" class="btn btn-primary">💬 Order via Telegram</a>
+                <a href="#pricing" class="btn btn-secondary">💰 See Pricing</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><div class="num">50+</div><div class="lbl">Tokens Launched</div></div>
+                <div class="stat"><div class="num">24h</div><div class="lbl">Delivery Time</div></div>
+                <div class="stat"><div class="num">100%</div><div class="lbl">Satisfaction</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how">
+        <div class="section-label">Process</div>
+        <h2>How It <span class="gradient">Works</span></h2>
+        <p class="subtitle">From idea to live token in 4 simple steps</p>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="num">1</div>
+                <h3>📝 Tell Us Your Idea</h3>
+                <p>Message us on Telegram with your token name, ticker, supply, and any special features you want.</p>
+            </div>
+            <div class="step-card">
+                <div class="num">2</div>
+                <h3>💸 Pay & Fund LP</h3>
+                <p>Choose your package, pay the service fee, and send SOL for liquidity pool setup.</p>
+            </div>
+            <div class="step-card">
+                <div class="num">3</div>
+                <h3>🚀 We Build Everything</h3>
+                <p>We deploy token, create LP on Raydium, build website, setup Telegram group — all done for you.</p>
+            </div>
+            <div class="step-card">
+                <div class="num">4</div>
+                <h3>🎉 Token Goes Live!</h3>
+                <p>Your token appears on Dexscreener, tradeable on Raydium. You focus on marketing, we handle the tech.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" id="pricing">
+        <div class="section-label">Pricing</div>
+        <h2>Choose Your <span class="gradient">Package</span></h2>
+        <p class="subtitle">From basic launch to full premium service</p>
+        <div class="pricing-grid">
+            <!-- Basic -->
+            <div class="price-card">
+                <div class="tier">🥉 Basic</div>
+                <div class="price">$300</div>
+                <div class="desc">Token deployed & ready to launch</div>
+                <ul>
+                    <li><span class="check">✅</span> Deploy SPL Token on Solana</li>
+                    <li><span class="check">✅</span> Custom name, ticker, supply</li>
+                    <li><span class="check">✅</span> Upload logo + metadata</li>
+                    <li><span class="check">✅</span> Revoke mint & freeze authority</li>
+                    <li><span class="check">✅</span> Landing page website</li>
+                    <li><span class="check">✅</span> Dexscreener listing guide</li>
+                    <li><span class="cross">—</span> <span style="color:#555">LP Setup</span></li>
+                    <li><span class="cross">—</span> <span style="color:#555">LP Lock</span></li>
+                    <li><span class="cross">—</span> <span style="color:#555">TG Group Setup</span></li>
+                    <li><span class="cross">—</span> <span style="color:#555">Marketing Plan</span></li>
+                </ul>
+                <a href="https://t.me/" target="_blank" class="btn btn-dark" style="width:100%;justify-content:center">Get Started</a>
+            </div>
+
+            <!-- Standard (Popular) -->
+            <div class="price-card popular">
+                <div class="tier">🥈 Standard</div>
+                <div class="price">$700</div>
+                <div class="desc">Everything you need to go live</div>
+                <ul>
+                    <li><span class="check">✅</span> Deploy SPL Token on Solana</li>
+                    <li><span class="check">✅</span> Custom name, ticker, supply</li>
+                    <li><span class="check">✅</span> Upload logo + metadata</li>
+                    <li><span class="check">✅</span> Revoke mint & freeze authority</li>
+                    <li><span class="check">✅</span> Landing page website</li>
+                    <li><span class="check">✅</span> LP Setup on Raydium</li>
+                    <li><span class="check">✅</span> LP Lock (6-12 months)</li>
+                    <li><span class="check">✅</span> TG Group + bots setup</li>
+                    <li><span class="check">✅</span> Twitter/X account setup</li>
+                    <li><span class="check">✅</span> Tokenomics document</li>
+                    <li><span class="check">✅</span> RugCheck verification</li>
+                    <li><span class="cross">—</span> <span style="color:#555">Custom Contract</span></li>
+                    <li><span class="cross">—</span> <span style="color:#555">Marketing Plan</span></li>
+                </ul>
+                <a href="https://t.me/" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center">🚀 Get Started</a>
+            </div>
+
+            <!-- Premium -->
+            <div class="price-card">
+                <div class="tier">🥇 Premium</div>
+                <div class="price">$1,500</div>
+                <div class="desc">Full premium — custom everything</div>
+                <ul>
+                    <li><span class="check">✅</span> Everything in Standard</li>
+                    <li><span class="check">✅</span> Custom smart contract features</li>
+                    <li><span class="check">✅</span> Custom website design (not template)</li>
+                    <li><span class="check">✅</span> Admin dashboard</li>
+                    <li><span class="check">✅</span> Marketing strategy document</li>
+                    <li><span class="check">✅</span> KOL & shill group contacts</li>
+                    <li><span class="check">✅</span> Dexscreener profile optimization</li>
+                    <li><span class="check">✅</span> Multi-chain support available</li>
+                    <li><span class="check">✅</span> 1 week post-launch support</li>
+                    <li><span class="check">✅</span> Priority delivery</li>
+                </ul>
+                <a href="https://t.me/" target="_blank" class="btn btn-accent" style="width:100%;justify-content:center">👑 Get Started</a>
+            </div>
+        </div>
+
+        <p style="text-align:center;color:var(--text-dim);font-size:0.85rem;margin-top:2rem">
+            💡 <strong>Client provides SOL for LP</strong> — we handle setup & lock. Service fee is separate from LP funds.
+        </p>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+        <div class="section-label">Why Us</div>
+        <h2>Why Choose <span class="gradient">KOIN</span></h2>
+        <p class="subtitle">Professional, transparent, and secure</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🔒</div>
+                <h3>Secure by Default</h3>
+                <p>Mint & freeze authority revoked. LP locked via trusted platforms. RugCheck verified. Your investors can trust the token.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h3>Fast Delivery</h3>
+                <p>Basic package delivered in 24 hours. Standard & Premium within 48 hours. We don't waste your time.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🎨</div>
+                <h3>Professional Website</h3>
+                <p>Modern, responsive landing page with tokenomics, how to buy guide, and trust indicators. Not some generic template.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Anti-Rugpull Setup</h3>
+                <p>We set up everything to prove your token is legitimate — LP lock, RugCheck score, transparent tokenomics.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💬</div>
+                <h3>Full Support</h3>
+                <p>Telegram support throughout the process. Premium gets 1 week post-launch support. We don't ghost you.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔗</div>
+                <h3>Multi-Chain</h3>
+                <p>Primary: Solana. Also supports Base, Ethereum, BSC. Want to launch on multiple chains? We can do that too.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+        <div class="section-label">FAQ</div>
+        <h2>Frequently Asked <span class="gradient">Questions</span></h2>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-q">What do I need to provide?</div>
+                <div class="faq-a">Just your token idea — name, ticker, concept, and logo (if you have one). For Standard/Premium, you'll also need SOL for the liquidity pool. We handle all the technical work.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How does the LP (Liquidity Pool) work?</div>
+                <div class="faq-a">You send SOL for the LP (minimum 2-5 SOL recommended). We create the trading pair on Raydium and lock the LP tokens so nobody can withdraw the liquidity. This proves your token isn't a rug pull.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Is my money safe during the process?</div>
+                <div class="faq-a">We use milestone-based payment. Service fee upfront, LP funds are used specifically for LP creation. You can verify everything on-chain — LP lock, token deployment, all transparent on Solana Explorer.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How long does delivery take?</div>
+                <div class="faq-a">Basic: 24 hours. Standard: 24-48 hours. Premium: 48 hours. We'll give you an exact timeline when you order.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Can I customize the smart contract?</div>
+                <div class="faq-a">Yes! Premium package includes custom features like transaction tax, auto-burn, holder rewards, etc. Basic and Standard use standard SPL token with mint/freeze revoked.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Do you guarantee the token will be successful?</div>
+                <div class="faq-a">No. We handle the technical side — deployment, LP, website. Success depends on your marketing, community building, and market conditions. We provide guidance but can't guarantee results.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">What chains do you support?</div>
+                <div class="faq-a">Primary: Solana. We also support Base (Ethereum L2), BSC, and Ethereum mainnet. Multi-chain deployment available for Premium clients.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Ready to Launch? 🚀</h2>
+        <p>Message us on Telegram and get your meme coin live within 24 hours.</p>
+        <a href="https://t.me/" target="_blank" class="btn btn-primary" style="font-size:1.1rem;padding:1rem 3rem">💬 Order via Telegram</a>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>🪙 KOIN — Meme Coin as a Service</p>
+        <p style="margin-top:0.5rem">Professional token deployment on Solana</p>
+        <p style="margin-top:0.5rem">© 2026 | Not financial advice. DYOR.</p>
+    </div>
+
+    <script>
+        // FAQ toggle
+        document.querySelectorAll('.faq-q').forEach(q => {
+            q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>

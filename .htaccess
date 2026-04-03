@@ -1,0 +1,46 @@
+# Security Hardening - Apache .htaccess
+
+# Block access to config, data, sensitive files
+<FilesMatch "^(config\.php|\.htaccess|\.env|\.gitignore)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block data directory
+RedirectMatch 403 /data/
+
+# Disable directory listing
+Options -Indexes
+
+# Block script execution in uploads
+<Directory "assets/uploads">
+    <FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|pht)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</Directory>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# Block attack patterns in query strings
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} .*(:/%2f%5c|\.%00|\.json|\.ini|\.bak|\.old).* [NC,OR]
+    RewriteCond %{QUERY_STRING} (eval|base64_encode|GLOBALS|_REQUEST).* [NC]
+    RewriteRule ^(.*)$ - [F,L]
+</IfModule>
+
+# PHP hardening
+<IfModule mod_php.c>
+    php_value expose_php 0
+    php_value display_errors 0
+    php_value log_errors 1
+</IfModule>
