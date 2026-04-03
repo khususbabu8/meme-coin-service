@@ -19,7 +19,7 @@ define('SESSION_TIMEOUT', 1800); // 30 min
 
 // === ADMIN ===
 // Hidden admin path
-define('ADMIN_PATH', 'adm1n');
+define('ADMIN_PATH', 'x9k2m7p');
 define('ADMIN_USER', 'koinadmin');
 // Default password: KoinAdmin2026! — CHANGE after first login
 define('ADMIN_PASS_HASH', '$5$rounds=535000$RYe9BV78zvw71zwW$colyn0NaG8gMJVJY6yv2bkDCnsfxScicHuAOXbHpIb6');
