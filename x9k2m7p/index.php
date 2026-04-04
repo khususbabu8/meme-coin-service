@@ -357,7 +357,7 @@ if (isAdmin()) validateSession();
             <div class="inq-item <?= !$inq['read'] ? 'unread' : '' ?>">
                 <div class="info">
                     <h3><?= htmlspecialchars($inq['name']) ?> — <span style="color:#00ff88"><?= htmlspecialchars($inq['package']) ?></span> <?= !$inq['read'] ? '🆕' : '' ?></h3>
-                    <p><strong>Telegram:</strong> @<?= htmlspecialchars($inq['telegram']) ?></p>
+                    <p><strong>Telegram:</strong> @<?= htmlspecialchars($inq['telegram']) ?><?php if (!empty($inq['lp_lock'])): ?> &nbsp;|&nbsp; <strong>LP Lock:</strong> <span style="color:#00ff88"><?= htmlspecialchars($inq['lp_lock']) ?></span><?php endif; ?></p>
                     <p style="margin-top:0.5rem"><?= nl2br(htmlspecialchars($inq['message'])) ?></p>
                 </div>
                 <div class="meta">

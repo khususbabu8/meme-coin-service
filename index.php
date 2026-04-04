@@ -13,12 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inqui
         $telegram = sanitize($_POST['telegram'] ?? '');
         $package = sanitize($_POST['package'] ?? '');
         $message = sanitize($_POST['message'] ?? '');
+        $lpLock = sanitize($_POST['lp_lock'] ?? 'No Lock (Free)');
         if (empty($name) || empty($telegram) || empty($package)) {
             $form_error = 'Please fill all required fields.';
         } elseif (strlen($name) > 100 || strlen($telegram) > 100 || strlen($message) > 2000) {
             $form_error = 'Input too long.';
         } else {
-            saveInquiry($name, $telegram, $package, $message);
+            saveInquiry($name, $telegram, $package, $message, $lpLock);
             $form_success = '✅ Inquiry sent! We\'ll contact you on Telegram soon.';
         }
     }
@@ -93,16 +94,61 @@ $c = $content;
                 <div class="tier"><?= $pkg['tier'] ?></div>
                 <div class="price">$<?= htmlspecialchars($pkg['price']) ?></div>
                 <div class="desc"><?= htmlspecialchars($pkg['desc']) ?></div>
-                <ul>
-                    <?php foreach (explode("\n", $pkg['features']) as $f): ?>
-                    <li><span class="ck">✅</span> <?= htmlspecialchars(trim($f)) ?></li>
+                <ul class="feat-list">
+                    <?php foreach (explode("\n", $pkg['features']) as $f): 
+                        $f = trim($f);
+                        if (empty($f)) continue;
+                        $isAddon = (strpos($f, '+ Add-on') === 0) || (strpos($f, '+ Lock') === 0) || (strpos($f, '+ Burn') === 0) || (strpos($f, '🔒') === 0);
+                    ?>
+                    <li<?= $isAddon ? ' class="addon"' : '' ?>>
+                        <span class="ck"><?= $isAddon ? '➕' : '✅' ?></span> 
+                        <?php if ($isAddon): ?>
+                            <span class="addon-text"><?= htmlspecialchars($f) ?></span>
+                        <?php else: ?>
+                            <?= htmlspecialchars($f) ?>
+                        <?php endif; ?>
+                    </li>
                     <?php endforeach; ?>
                 </ul>
                 <a href="#contact" class="btn <?= $pkg['btn'] ?>" style="width:100%;justify-content:center">Get Started</a>
             </div>
             <?php endforeach; ?>
         </div>
-        <p style="text-align:center;color:var(--td);font-size:0.85rem;margin-top:2rem">💡 <strong>Client provides SOL for LP</strong> — we handle setup & lock. Service fee separate from LP funds.</p>
+        <p style="text-align:center;color:var(--td);font-size:0.85rem;margin-top:2rem">💡 <strong>Client provides SOL for LP</strong> — we handle setup. LP Lock optional, pilih sendiri!</p>
+    </section>
+
+    <section class="sec" id="lp-options">
+        <div class="sec-lbl">Add-ons</div>
+        <h2>LP Lock <span class="g">Options</span></h2>
+        <p class="sub">Pilih sesuai budget & trust level. Client tentukan sendiri.</p>
+        <div class="lp-grid">
+            <div class="lp-card">
+                <div class="lp-ic">🔓</div>
+                <h3>No Lock</h3>
+                <div class="lp-price">Free</div>
+                <p>LP tetap bisa diwithdraw kapan aja. Cocok buat testing atau project kecil.</p>
+            </div>
+            <div class="lp-card lp-pop">
+                <div class="lp-badge">RECOMMENDED</div>
+                <div class="lp-ic">🔒</div>
+                <h3>Lock 6 Months</h3>
+                <div class="lp-price">+$100</div>
+                <p>Investor percaya. Dexscreener badge locked. RugCheck score naik.</p>
+            </div>
+            <div class="lp-card">
+                <div class="lp-ic">🔒</div>
+                <h3>Lock 12 Months</h3>
+                <div class="lp-price">+$150</div>
+                <p>Max trust. Best untuk project jangka panjang. PinkSale certificate.</p>
+            </div>
+            <div class="lp-card">
+                <div class="lp-ic">🔥</div>
+                <h3>Burn LP</h3>
+                <div class="lp-price">Free</div>
+                <p>Permanent — LP nggak bisa diambil lagi selamanya. Maximum anti-rug signal.</p>
+            </div>
+        </div>
+    </section>
     </section>
 
     <section class="sec" id="features">
@@ -137,6 +183,16 @@ $c = $content;
                         <option value="Basic ($<?= htmlspecialchars($c['pkg_basic_price']) ?>)">🥉 Basic — $<?= htmlspecialchars($c['pkg_basic_price']) ?></option>
                         <option value="Standard ($<?= htmlspecialchars($c['pkg_standard_price']) ?>)">🥈 Standard — $<?= htmlspecialchars($c['pkg_standard_price']) ?></option>
                         <option value="Premium ($<?= htmlspecialchars($c['pkg_premium_price']) ?>)">🥇 Premium — $<?= htmlspecialchars($c['pkg_premium_price']) ?></option>
+                    </select>
+                </div>
+                <div class="fg">
+                    <label>LP Lock Option</label>
+                    <select name="lp_lock">
+                        <option value="No Lock (Free)">🔓 No Lock — Free</option>
+                        <option value="Lock 3 Months (+$50)">🔒 Lock 3 Months — +$50</option>
+                        <option value="Lock 6 Months (+$100)" selected>🔒 Lock 6 Months — +$100</option>
+                        <option value="Lock 12 Months (+$150)">🔒 Lock 12 Months — +$150</option>
+                        <option value="Burn LP Permanent (Free)">🔥 Burn LP Permanent — Free</option>
                     </select>
                 </div>
                 <div class="fg"><label>Message</label><textarea name="message" rows="4" placeholder="Tell us about your token idea..." maxlength="2000"></textarea></div>

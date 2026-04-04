@@ -157,7 +157,7 @@ function getInquiries() {
     return [];
 }
 
-function saveInquiry($name, $telegram, $package, $message) {
+function saveInquiry($name, $telegram, $package, $message, $lpLock = '') {
     $dir = dirname(INQUIRIES_FILE);
     if (!is_dir($dir)) mkdir($dir, 0755, true);
     $inquiries = getInquiries();
@@ -166,6 +166,7 @@ function saveInquiry($name, $telegram, $package, $message) {
         'name' => $name,
         'telegram' => $telegram,
         'package' => $package,
+        'lp_lock' => $lpLock,
         'message' => $message,
         'ip' => $_SERVER['REMOTE_ADDR'] ?? '',
         'date' => date('Y-m-d H:i:s'),
