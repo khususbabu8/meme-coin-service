@@ -149,7 +149,6 @@ $c = $content;
             </div>
         </div>
     </section>
-    </section>
 
     <section class="sec" id="features">
         <div class="sec-lbl">Why Us</div>
